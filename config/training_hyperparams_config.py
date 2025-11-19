@@ -6,7 +6,7 @@ n_boundary_samples = 512
 n_terminal_samples = 1024
 n_far_samples = 512
 
-n_epochs = 30000
+max_epochs = 12
 learning_rate = 1e-3
 
 w_pde = 1.0
