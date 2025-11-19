@@ -9,6 +9,19 @@ n_far_samples = 512
 max_epochs = 20000
 learning_rate = 1e-3
 
+# ============================================================
+# Stopping / monitoring hyperparameters
+# ============================================================
+target_total_loss = 1.0e-4   # stop if total loss below this
+target_pde_loss   = 1.0e-4   # and PDE loss below this
+
+patience    = 5000           # epochs without sufficient improvement
+min_delta   = 1.0e-5         # required improvement in loss to reset patience
+
+
+# ============================================================
+# Loss function weights
+# ============================================================
 w_pde = 1.0
 w_vm = 20.0
 w_sp = 20.0
