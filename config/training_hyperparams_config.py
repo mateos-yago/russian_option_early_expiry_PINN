@@ -29,4 +29,4 @@ w_reflect = 2.0
 w_term = 10.0
 w_far = 2.0
 w_stop = 10.0
-w_premium = 30.0
+w_premium = 25.0
