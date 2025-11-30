@@ -23,10 +23,10 @@ min_delta   = 1.0e-5         # required improvement in loss to reset patience
 # Loss function weights
 # ============================================================
 w_pde = 30.0
-w_vm = 22.0
+w_vm = 20.0
 w_sp = 20.0
 w_reflect = 2.0
-w_term = 12.0
-w_far = 2.0
+w_term = 10.0
+w_far = 4.0
 w_stop = 10.0
 w_premium = 25.0
