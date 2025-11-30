@@ -2,7 +2,7 @@
 # Training hyperparameters
 # ============================================================
 n_pde_samples_per_batch = 2048
-n_boundary_samples = 512
+n_boundary_samples = 1024
 n_terminal_samples = 1024
 n_far_samples = 512
 
