@@ -11,22 +11,48 @@ def sample_params(n_samples, device):
     T = T_min + (T_max - T_min) * torch.rand(n_samples, 1, device=device)
     return r, sigma, T
 
-def sample_pde_points(n_samples, boundary_net, device):
-    """
-    Continuation-region points: t in [0,T], x in [x_min, b(t)].
-    Used to enforce the PDE and premium positivity.
-    """
-    r, sigma, T = sample_params(n_samples, device)
+def sample_pde_points(n_samples, b_net, device):
+    # Sample params r, sigma, T as before
+    r, sigma, T = sample_params(n_samples, device=device)
     u_t = torch.rand(n_samples, 1, device=device)
-    t = u_t * T  # t in [0, T] for each sample
+    t = u_t * T
 
     with torch.no_grad():
-        b = boundary_net(t, r, sigma, T)
+        b = b_net(t, r, sigma, T)
 
-    u_x = torch.rand(n_samples, 1, device=device)
-    x = x_min + u_x * (b - x_min)  # x in [x_min, b(t)]
+    # Two groups: near-boundary and interior
+    n_near = n_samples // 2
+    n_int  = n_samples - n_near
 
-    return t, x, r, sigma, T
+    # 1) Near boundary: x ~ [b - eps, b]
+    eps = 0.2  # in x units; tune to your domain
+    t_near = t[:n_near]
+    b_near = b[:n_near]
+    r_near, sigma_near, T_near = r[:n_near], sigma[:n_near], T[:n_near]
+
+    lo = torch.clamp(b_near - eps, min=x_min)
+    u_near = torch.rand(n_near, 1, device=device)
+    x_near = lo + u_near * (b_near - lo)
+
+    # 2) Interior: x ~ [x_min, b - eps] (where possible)
+    t_int = t[n_near:]
+    b_int = b[n_near:]
+    r_int, sigma_int, T_int = r[n_near:], sigma[n_near:], T[n_near:]
+
+    lo_int = x_min * torch.ones_like(b_int)
+    hi_int = torch.clamp(b_int - eps, min=x_min + 1e-3)
+    u_int = torch.rand(n_int, 1, device=device)
+    x_int = lo_int + u_int * (hi_int - lo_int)
+
+    # Concatenate
+    t_all = torch.cat([t_near, t_int], dim=0)
+    x_all = torch.cat([x_near, x_int], dim=0)
+    r_all = torch.cat([r_near, r_int], dim=0)
+    sigma_all = torch.cat([sigma_near, sigma_int], dim=0)
+    T_all = torch.cat([T_near, T_int], dim=0)
+
+    return t_all, x_all, r_all, sigma_all, T_all
+
 
 def sample_free_boundary_points(n_samples, boundary_net, device):
     """
